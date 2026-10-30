@@ -1,11 +1,27 @@
-const CACHE_NAME = 'habit-timer-cache-v1';
+const CACHE_NAME = 'habit-timer-cache-v2';
+const DATA_CACHE_NAME = 'habit-timer-user-data-backup-v1';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys.map((key) => {
+            // Never delete the user data backup cache across app updates!
+            if (key !== CACHE_NAME && key !== DATA_CACHE_NAME) {
+              return caches.delete(key);
+            }
+            return null;
+          })
+        )
+      )
+      .then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch', (event) => {
