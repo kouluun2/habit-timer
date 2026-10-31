@@ -1,4 +1,4 @@
-const CACHE_NAME = 'habit-timer-cache-v3';
+const CACHE_NAME = 'habit-timer-cache-v4';
 const DATA_CACHE_NAME = 'habit-timer-user-data-backup-v1';
 
 self.addEventListener('install', (event) => {
@@ -24,18 +24,45 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+const putInCache = (request, response) => {
+  if (!response || !response.ok || response.type === 'opaque') return;
+  const cloned = response.clone();
+  caches.open(CACHE_NAME).then((cache) => cache.put(request, cloned)).catch(() => {});
+};
+
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  const { request } = event;
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+  // Only handle our own origin. Firebase / Google APIs (streaming Firestore channels etc.)
+  // go straight to the network without being cloned into the cache.
+  if (url.origin !== self.location.origin) return;
+
+  // Content-hashed build assets never change: cache-first for instant loads.
+  if (url.pathname.includes('/assets/') || url.pathname.includes('/alarms/')) {
+    event.respondWith(
+      caches.match(request).then(
+        (cached) =>
+          cached ||
+          fetch(request).then((response) => {
+            putInCache(request, response);
+            return response;
+          })
+      )
+    );
+    return;
+  }
+
+  // HTML / manifest / everything else: network-first so updates appear immediately,
+  // falling back to cache when offline.
   event.respondWith(
-    fetch(event.request)
+    fetch(request)
       .then((response) => {
-        const cloned = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, cloned);
-        });
+        putInCache(request, response);
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(() => caches.match(request))
   );
 });
 
