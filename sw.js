@@ -1,4 +1,4 @@
-const CACHE_NAME = 'habit-timer-cache-v13';
+const CACHE_NAME = 'habit-timer-cache-v14';
 const DATA_CACHE_NAME = 'habit-timer-user-data-backup-v1';
 
 self.addEventListener('install', (event) => {
