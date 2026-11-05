@@ -5382,6 +5382,84 @@ const ALARM_SOUNDS = [
   },
 ];
 
+// ==========================================
+// AMBIENT BGM TRACKS & AUDIO ENGINE (Lo-Fi, Rain, Musicbox, Birds)
+// ==========================================
+const AMBIENT_BGM_TRACKS = [
+  {
+    id: 'off',
+    label: 'BGMなし (無音)',
+    sub: '静かに集中したいとき',
+    emoji: '🔇',
+    src: null,
+    color: '#94A3B8',
+  },
+  {
+    id: 'latte',
+    label: '放課後アイスラテ',
+    sub: 'エモいLo-Fi ＋ 氷のカラン音',
+    emoji: '🧊',
+    src: './bgm/afternoon-latte.wav',
+    color: '#FF7E95',
+  },
+  {
+    id: 'rain',
+    label: '雨降りの自習室',
+    sub: 'やさしい雨音 ＋ ぽろんピアノ',
+    emoji: '🌧️',
+    src: './bgm/rainy-study.wav',
+    color: '#38BDF8',
+  },
+  {
+    id: 'musicbox',
+    label: 'ほしのオルゴール',
+    sub: '星空シンセ ＋ 澄んだ鈴音',
+    emoji: '🎠',
+    src: './bgm/starry-musicbox.wav',
+    color: '#A855F7',
+  },
+  {
+    id: 'walk',
+    label: 'ひだまりの散歩道',
+    sub: '小鳥のさえずり ＋ ギターボサノヴァ',
+    emoji: '🍃',
+    src: './bgm/sunny-walk.wav',
+    color: '#10B981',
+  },
+];
+
+let currentBgmAudio = null;
+
+const playAmbientBgm = (bgmId, volumePct = 50) => {
+  const track = AMBIENT_BGM_TRACKS.find((t) => t.id === bgmId);
+  if (!track || !track.src || volumePct <= 0) {
+    stopAmbientBgm();
+    return;
+  }
+  try {
+    if (!currentBgmAudio) {
+      currentBgmAudio = new Audio();
+      currentBgmAudio.loop = true;
+      currentBgmAudio.setAttribute('playsinline', 'true');
+    }
+    const targetVol = Math.max(0, Math.min(1, volumePct / 100));
+    currentBgmAudio.volume = targetVol;
+    if (!currentBgmAudio.src.endsWith(track.src.replace('./', ''))) {
+      currentBgmAudio.src = track.src;
+      currentBgmAudio.currentTime = 0;
+    }
+    currentBgmAudio.play().catch(() => {});
+  } catch (e) {}
+};
+
+const stopAmbientBgm = () => {
+  try {
+    if (currentBgmAudio) {
+      currentBgmAudio.pause();
+    }
+  } catch (e) {}
+};
+
 let silentKeepAliveAudio = null;
 let activeAlarmAudio = null;
 let alarmStopTimeout = null;
@@ -6086,7 +6164,13 @@ export default function App() {
   // Customization & Companion Character State
   const [themeId, setThemeId] = useState(saved?.themeId || 'pastel-milky');
   const [timerStyle, setTimerStyle] = useState(saved?.timerStyle || 'ring');
-  const [alarmSoundId, setAlarmSoundId] = useState(saved?.alarmSoundId || 'marimba');
+  const [alarmSoundId, setAlarmSoundId] = useState(saved?.alarmSoundId || 'digital');
+  const [selectedBgmId, setSelectedBgmId] = useState(saved?.selectedBgmId || 'latte');
+  const [bgmVolume, setBgmVolume] = useState(() =>
+    typeof saved?.bgmVolume === 'number' ? Math.max(0, Math.min(100, saved.bgmVolume)) : 55
+  );
+  const [previewingBgmId, setPreviewingBgmId] = useState(null);
+  const [showBgmPicker, setShowBgmPicker] = useState(false);
   const [alarmVolume, setAlarmVolume] = useState(() =>
     typeof saved?.alarmVolume === 'number' ? Math.max(0, Math.min(100, saved.alarmVolume)) : 80
   );
@@ -6738,6 +6822,8 @@ export default function App() {
         if (backup.themeId) setThemeId(backup.themeId);
         if (backup.timerStyle) setTimerStyle(backup.timerStyle);
         if (backup.alarmSoundId) setAlarmSoundId(backup.alarmSoundId);
+        if (backup.selectedBgmId) setSelectedBgmId(backup.selectedBgmId);
+        if (typeof backup.bgmVolume === 'number') setBgmVolume(Math.max(0, Math.min(100, backup.bgmVolume)));
         if (typeof backup.alarmVolume === 'number') {
           setAlarmVolume(Math.max(0, Math.min(100, backup.alarmVolume)));
         }
@@ -6817,6 +6903,8 @@ export default function App() {
         themeId,
         timerStyle,
         alarmSoundId,
+        selectedBgmId,
+        bgmVolume,
         alarmVolume,
         alarmDurationSec,
         alarmVibration,
@@ -7065,6 +7153,19 @@ export default function App() {
   };
 
   completeCallbackRef.current = handleTimerFinish;
+
+  // タイマー計測中と連動したアンビエントBGM自動再生
+  useEffect(() => {
+    if (previewingBgmId) return; // 試聴中はタイマー連動をスキップ
+    if (isRunning && selectedBgmId && selectedBgmId !== 'off') {
+      playAmbientBgm(selectedBgmId, bgmVolume);
+    } else {
+      stopAmbientBgm();
+    }
+    return () => {
+      if (!previewingBgmId) stopAmbientBgm();
+    };
+  }, [isRunning, selectedBgmId, bgmVolume, previewingBgmId]);
 
   // Atomic timer loop: Per-second re-renders are completely eliminated!
   // Counting and SVG ring progress are directly driven via DOM in AtomicTimerDisplay,
@@ -9153,6 +9254,125 @@ export default function App() {
           getTaskCompletedSets={getTaskCompletedSets}
         />
 
+        {/* 🎧 集中アンビエントBGM クイックセレクターピル (ワンタップ切替) */}
+        {(() => {
+          const currentBgm = AMBIENT_BGM_TRACKS.find((t) => t.id === selectedBgmId) || AMBIENT_BGM_TRACKS[0];
+          const isPlaying = isRunning && selectedBgmId && selectedBgmId !== 'off';
+
+          return (
+            <div className="relative flex flex-col items-center mt-3 mb-1 z-30">
+              <button
+                type="button"
+                onClick={() => setShowBgmPicker((prev) => !prev)}
+                className={`group px-3.5 py-1.5 rounded-full border backdrop-blur-md shadow-sm flex items-center gap-2 transition-all active:scale-95 text-xs font-bold ${
+                  isPlaying
+                    ? 'bg-rose-50/90 border-rose-300 text-rose-800 shadow-[0_4px_16px_rgba(255,141,161,0.2)]'
+                    : 'bg-white/80 hover:bg-white border-rose-200/80 text-stone-600 hover:text-stone-800'
+                }`}
+                title="集中アンビエントBGMの切り替え"
+              >
+                <span className="text-sm select-none">{currentBgm.emoji}</span>
+                <span className="font-extrabold tracking-wide truncate max-w-[130px]">
+                  {currentBgm.label}
+                </span>
+
+                {/* 再生中のぽてかわ波形イコライザー */}
+                {isPlaying ? (
+                  <span className="flex items-center gap-0.5 ml-0.5 h-3">
+                    <span className="w-1 bg-rose-400 rounded-full animate-bounce h-2" style={{ animationDuration: '0.6s' }} />
+                    <span className="w-1 bg-rose-500 rounded-full animate-bounce h-3" style={{ animationDuration: '0.8s', animationDelay: '0.15s' }} />
+                    <span className="w-1 bg-rose-400 rounded-full animate-bounce h-2.5" style={{ animationDuration: '0.7s', animationDelay: '0.3s' }} />
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-stone-400 font-semibold px-1 rounded bg-stone-100">
+                    {selectedBgmId === 'off' ? 'OFF' : '待機中'}
+                  </span>
+                )}
+
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-stone-400 transition-transform duration-200 ${
+                    showBgmPicker ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {/* クイック選曲ドロップダウン */}
+              <AnimatePresence>
+                {showBgmPicker && (
+                  <>
+                    {/* 外部クリックで閉じる透明レイヤー */}
+                    <div
+                      className="fixed inset-0 z-30"
+                      onClick={() => setShowBgmPicker(false)}
+                    />
+
+                    <motion.div
+                      initial={{ opacity: 0, y: -8, scale: 0.94 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.94 }}
+                      transition={{ duration: 0.16, ease: 'easeOut' }}
+                      className="absolute top-10 p-2.5 rounded-[24px] bg-white/95 backdrop-blur-2xl border border-rose-200/90 shadow-[0_20px_50px_-10px_rgba(255,141,161,0.35)] flex flex-col gap-1.5 w-60 z-40"
+                    >
+                      <div className="flex items-center justify-between px-2 pt-1 pb-0.5">
+                        <span className="text-[10px] font-black text-rose-500 tracking-wider">
+                          🎧 集中アンビエントBGM
+                        </span>
+                        <span className="text-[10px] text-stone-400 font-bold">全4曲収録</span>
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        {AMBIENT_BGM_TRACKS.map((t) => {
+                          const isSel = selectedBgmId === t.id;
+                          return (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedBgmId(t.id);
+                                setShowBgmPicker(false);
+                              }}
+                              className={`flex items-center gap-2.5 px-3 py-2 rounded-2xl text-left transition-all active:scale-98 ${
+                                isSel
+                                  ? 'bg-rose-100/90 text-rose-900 border border-rose-200 shadow-sm'
+                                  : 'hover:bg-rose-50/60 text-stone-700'
+                              }`}
+                            >
+                              <span className="text-base select-none">{t.emoji}</span>
+                              <div className="flex flex-col flex-1 min-w-0">
+                                <span className="text-xs font-black truncate">{t.label}</span>
+                                <span className="text-[9px] opacity-75 font-medium truncate">{t.sub}</span>
+                              </div>
+                              {isSel && (
+                                <Check className="w-4 h-4 text-rose-600 flex-shrink-0" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* クイック音量スライダー */}
+                      <div className="mt-1 pt-2 border-t border-rose-100 flex items-center gap-2 px-2">
+                        <span className="text-[10px] font-bold text-stone-400">音量</span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={bgmVolume}
+                          onChange={(e) => setBgmVolume(Number(e.target.value))}
+                          className="w-full accent-rose-400 h-1.5 bg-rose-100 rounded-lg cursor-pointer"
+                        />
+                        <span className="text-[10px] font-mono text-stone-500 tabular-nums w-6 text-right">
+                          {bgmVolume}%
+                        </span>
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })()}
+
         {/* ==========================================
             ROAMING CHARACTER PLAYGROUND
             ========================================== */}
@@ -10751,6 +10971,96 @@ export default function App() {
                                 <Volume2 className="w-3.5 h-3.5" />
                                 <span>試聴 {alarmDurationSec}秒</span>
                               </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Ambient Focus BGM Section */}
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold opacity-85 flex items-center gap-1.5">
+                          <span>🎧 集中アンビエントBGM</span>
+                          <span className="text-[10px] px-2 py-0.2 rounded-full bg-rose-100 text-rose-600 font-extrabold">NEW</span>
+                        </span>
+                        <div className="flex items-center gap-1.5 text-xs font-mono font-bold">
+                          <span className="text-[10px] opacity-60">音量</span>
+                          <span style={{ color: activeCategory.color }}>{bgmVolume}%</span>
+                        </div>
+                      </div>
+
+                      {/* BGM音量スライダー */}
+                      <div className={`p-2.5 rounded-2xl border flex items-center gap-2.5 ${currentTheme.pill}`}>
+                        <Volume1 className="w-4 h-4 opacity-60 shrink-0" />
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={bgmVolume}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            setBgmVolume(val);
+                            if (isRunning || previewingBgmId) {
+                              playAmbientBgm(previewingBgmId || selectedBgmId, val);
+                            }
+                          }}
+                          className="w-full accent-rose-400 h-1.5 bg-black/10 dark:bg-white/10 rounded-lg cursor-pointer"
+                        />
+                        <Volume2 className="w-4 h-4 opacity-60 shrink-0" />
+                      </div>
+
+                      {/* BGMトラック一覧 */}
+                      <div className="flex flex-col gap-1.5">
+                        {AMBIENT_BGM_TRACKS.map((track) => {
+                          const isSelected = selectedBgmId === track.id;
+                          const isPreviewing = previewingBgmId === track.id;
+                          return (
+                            <div
+                              key={track.id}
+                              onClick={() => {
+                                setSelectedBgmId(track.id);
+                                if (previewingBgmId) {
+                                  stopAmbientBgm();
+                                  setPreviewingBgmId(null);
+                                }
+                              }}
+                              className={`p-2.5 rounded-2xl border flex items-center justify-between gap-2 cursor-pointer transition-all ${currentTheme.pill}`}
+                              style={{
+                                backgroundColor: isSelected ? activeCategory.softBg : undefined,
+                                borderColor: isSelected ? activeCategory.color : undefined,
+                              }}
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <span className="text-base shrink-0">{track.emoji}</span>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="text-xs font-black truncate">{track.label}</span>
+                                  <span className="text-[10px] opacity-65 truncate font-semibold">{track.sub}</span>
+                                </div>
+                              </div>
+
+                              {track.src && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (isPreviewing) {
+                                      stopAmbientBgm();
+                                      setPreviewingBgmId(null);
+                                    } else {
+                                      stopAmbientBgm();
+                                      setPreviewingBgmId(track.id);
+                                      playAmbientBgm(track.id, bgmVolume);
+                                    }
+                                  }}
+                                  className="px-2.5 py-1 rounded-xl border border-current/20 bg-current/5 hover:bg-current/10 text-[10px] font-bold flex items-center gap-1 shrink-0"
+                                  style={{
+                                    color: isPreviewing ? activeCategory.color : undefined,
+                                  }}
+                                >
+                                  <span>{isPreviewing ? '⏹ 停止' : '▶ 試聴'}</span>
+                                </button>
+                              )}
                             </div>
                           );
                         })}

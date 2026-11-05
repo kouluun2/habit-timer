@@ -40,7 +40,7 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
 
   // Content-hashed build assets never change: cache-first for instant loads.
-  if (url.pathname.includes('/assets/') || url.pathname.includes('/alarms/')) {
+  if (url.pathname.includes('/assets/') || url.pathname.includes('/alarms/') || url.pathname.includes('/bgm/')) {
     event.respondWith(
       caches.match(request).then(
         (cached) =>
