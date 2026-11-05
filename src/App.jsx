@@ -5388,43 +5388,28 @@ const ALARM_SOUNDS = [
 const AMBIENT_BGM_TRACKS = [
   {
     id: 'off',
-    label: 'BGMなし (無音)',
-    sub: '静かに集中したいとき',
-    emoji: '🔇',
+    label: 'BGMなし（消音）',
     src: null,
-    color: '#94A3B8',
   },
   {
     id: 'latte',
     label: '放課後アイスラテ',
-    sub: 'エモいLo-Fi ＋ 氷のカラン音',
-    emoji: '🧊',
     src: './bgm/afternoon-latte.wav',
-    color: '#FF7E95',
   },
   {
     id: 'rain',
     label: '雨降りの自習室',
-    sub: 'やさしい雨音 ＋ ぽろんピアノ',
-    emoji: '🌧️',
     src: './bgm/rainy-study.wav',
-    color: '#38BDF8',
   },
   {
     id: 'musicbox',
     label: 'ほしのオルゴール',
-    sub: '星空シンセ ＋ 澄んだ鈴音',
-    emoji: '🎠',
     src: './bgm/starry-musicbox.wav',
-    color: '#A855F7',
   },
   {
     id: 'walk',
     label: 'ひだまりの散歩道',
-    sub: '小鳥のさえずり ＋ ギターボサノヴァ',
-    emoji: '🍃',
     src: './bgm/sunny-walk.wav',
-    color: '#10B981',
   },
 ];
 
@@ -6170,7 +6155,6 @@ export default function App() {
     typeof saved?.bgmVolume === 'number' ? Math.max(0, Math.min(100, saved.bgmVolume)) : 55
   );
   const [previewingBgmId, setPreviewingBgmId] = useState(null);
-  const [showBgmPicker, setShowBgmPicker] = useState(false);
   const [alarmVolume, setAlarmVolume] = useState(() =>
     typeof saved?.alarmVolume === 'number' ? Math.max(0, Math.min(100, saved.alarmVolume)) : 80
   );
@@ -9254,125 +9238,6 @@ export default function App() {
           getTaskCompletedSets={getTaskCompletedSets}
         />
 
-        {/* 🎧 集中アンビエントBGM クイックセレクターピル (ワンタップ切替) */}
-        {(() => {
-          const currentBgm = AMBIENT_BGM_TRACKS.find((t) => t.id === selectedBgmId) || AMBIENT_BGM_TRACKS[0];
-          const isPlaying = isRunning && selectedBgmId && selectedBgmId !== 'off';
-
-          return (
-            <div className="relative flex flex-col items-center mt-3 mb-1 z-30">
-              <button
-                type="button"
-                onClick={() => setShowBgmPicker((prev) => !prev)}
-                className={`group px-3.5 py-1.5 rounded-full border backdrop-blur-md shadow-sm flex items-center gap-2 transition-all active:scale-95 text-xs font-bold ${
-                  isPlaying
-                    ? 'bg-rose-50/90 border-rose-300 text-rose-800 shadow-[0_4px_16px_rgba(255,141,161,0.2)]'
-                    : 'bg-white/80 hover:bg-white border-rose-200/80 text-stone-600 hover:text-stone-800'
-                }`}
-                title="集中アンビエントBGMの切り替え"
-              >
-                <span className="text-sm select-none">{currentBgm.emoji}</span>
-                <span className="font-extrabold tracking-wide truncate max-w-[130px]">
-                  {currentBgm.label}
-                </span>
-
-                {/* 再生中のぽてかわ波形イコライザー */}
-                {isPlaying ? (
-                  <span className="flex items-center gap-0.5 ml-0.5 h-3">
-                    <span className="w-1 bg-rose-400 rounded-full animate-bounce h-2" style={{ animationDuration: '0.6s' }} />
-                    <span className="w-1 bg-rose-500 rounded-full animate-bounce h-3" style={{ animationDuration: '0.8s', animationDelay: '0.15s' }} />
-                    <span className="w-1 bg-rose-400 rounded-full animate-bounce h-2.5" style={{ animationDuration: '0.7s', animationDelay: '0.3s' }} />
-                  </span>
-                ) : (
-                  <span className="text-[10px] text-stone-400 font-semibold px-1 rounded bg-stone-100">
-                    {selectedBgmId === 'off' ? 'OFF' : '待機中'}
-                  </span>
-                )}
-
-                <ChevronDown
-                  className={`w-3.5 h-3.5 text-stone-400 transition-transform duration-200 ${
-                    showBgmPicker ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-
-              {/* クイック選曲ドロップダウン */}
-              <AnimatePresence>
-                {showBgmPicker && (
-                  <>
-                    {/* 外部クリックで閉じる透明レイヤー */}
-                    <div
-                      className="fixed inset-0 z-30"
-                      onClick={() => setShowBgmPicker(false)}
-                    />
-
-                    <motion.div
-                      initial={{ opacity: 0, y: -8, scale: 0.94 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -8, scale: 0.94 }}
-                      transition={{ duration: 0.16, ease: 'easeOut' }}
-                      className="absolute top-10 p-2.5 rounded-[24px] bg-white/95 backdrop-blur-2xl border border-rose-200/90 shadow-[0_20px_50px_-10px_rgba(255,141,161,0.35)] flex flex-col gap-1.5 w-60 z-40"
-                    >
-                      <div className="flex items-center justify-between px-2 pt-1 pb-0.5">
-                        <span className="text-[10px] font-black text-rose-500 tracking-wider">
-                          🎧 集中アンビエントBGM
-                        </span>
-                        <span className="text-[10px] text-stone-400 font-bold">全4曲収録</span>
-                      </div>
-
-                      <div className="flex flex-col gap-1">
-                        {AMBIENT_BGM_TRACKS.map((t) => {
-                          const isSel = selectedBgmId === t.id;
-                          return (
-                            <button
-                              key={t.id}
-                              type="button"
-                              onClick={() => {
-                                setSelectedBgmId(t.id);
-                                setShowBgmPicker(false);
-                              }}
-                              className={`flex items-center gap-2.5 px-3 py-2 rounded-2xl text-left transition-all active:scale-98 ${
-                                isSel
-                                  ? 'bg-rose-100/90 text-rose-900 border border-rose-200 shadow-sm'
-                                  : 'hover:bg-rose-50/60 text-stone-700'
-                              }`}
-                            >
-                              <span className="text-base select-none">{t.emoji}</span>
-                              <div className="flex flex-col flex-1 min-w-0">
-                                <span className="text-xs font-black truncate">{t.label}</span>
-                                <span className="text-[9px] opacity-75 font-medium truncate">{t.sub}</span>
-                              </div>
-                              {isSel && (
-                                <Check className="w-4 h-4 text-rose-600 flex-shrink-0" />
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {/* クイック音量スライダー */}
-                      <div className="mt-1 pt-2 border-t border-rose-100 flex items-center gap-2 px-2">
-                        <span className="text-[10px] font-bold text-stone-400">音量</span>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={bgmVolume}
-                          onChange={(e) => setBgmVolume(Number(e.target.value))}
-                          className="w-full accent-rose-400 h-1.5 bg-rose-100 rounded-lg cursor-pointer"
-                        />
-                        <span className="text-[10px] font-mono text-stone-500 tabular-nums w-6 text-right">
-                          {bgmVolume}%
-                        </span>
-                      </div>
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
-            </div>
-          );
-        })()}
-
         {/* ==========================================
             ROAMING CHARACTER PLAYGROUND
             ========================================== */}
@@ -10977,44 +10842,104 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Ambient Focus BGM Section */}
+                    {/* Ambient Focus BGM Section (Unified with Alarm Sound UI) */}
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold opacity-85 flex items-center gap-1.5">
-                          <span>🎧 集中アンビエントBGM</span>
-                          <span className="text-[10px] px-2 py-0.2 rounded-full bg-rose-100 text-rose-600 font-extrabold">NEW</span>
-                        </span>
-                        <div className="flex items-center gap-1.5 text-xs font-mono font-bold">
-                          <span className="text-[10px] opacity-60">音量</span>
-                          <span style={{ color: activeCategory.color }}>{bgmVolume}%</span>
+                        <div className="flex items-center gap-1.5">
+                          <Music className="w-4 h-4" style={{ color: activeCategory.color }} />
+                          <span className="text-xs font-bold">集中アンビエントBGM</span>
                         </div>
+                        <span
+                          className="font-mono text-xs font-bold px-2 py-0.5 rounded-lg border border-current/15 bg-current/5"
+                          style={{ color: bgmVolume === 0 ? undefined : activeCategory.color }}
+                        >
+                          {bgmVolume === 0 ? '消音 0%' : `${bgmVolume}%`}
+                        </span>
                       </div>
 
-                      {/* BGM音量スライダー */}
-                      <div className={`p-2.5 rounded-2xl border flex items-center gap-2.5 ${currentTheme.pill}`}>
-                        <Volume1 className="w-4 h-4 opacity-60 shrink-0" />
+                      {/* Minus / Slider / Plus Controls */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBgmVolume((v) => {
+                              const next = Math.max(0, v - 5);
+                              if (isRunning || previewingBgmId) {
+                                playAmbientBgm(previewingBgmId || selectedBgmId, next);
+                              }
+                              return next;
+                            });
+                          }}
+                          className="w-7 h-7 rounded-xl border border-current/15 bg-current/5 hover:bg-current/10 flex items-center justify-center shrink-0 active:scale-95 transition-transform"
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
                         <input
                           type="range"
-                          min="0"
-                          max="100"
+                          min={0}
+                          max={100}
+                          step={1}
                           value={bgmVolume}
                           onChange={(e) => {
-                            const val = Number(e.target.value);
-                            setBgmVolume(val);
+                            const nextVal = Number(e.target.value);
+                            setBgmVolume(nextVal);
                             if (isRunning || previewingBgmId) {
-                              playAmbientBgm(previewingBgmId || selectedBgmId, val);
+                              playAmbientBgm(previewingBgmId || selectedBgmId, nextVal);
                             }
                           }}
-                          className="w-full accent-rose-400 h-1.5 bg-black/10 dark:bg-white/10 rounded-lg cursor-pointer"
+                          className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-current/20"
+                          style={{ accentColor: activeCategory.color }}
                         />
-                        <Volume2 className="w-4 h-4 opacity-60 shrink-0" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBgmVolume((v) => {
+                              const next = Math.min(100, v + 5);
+                              if (isRunning || previewingBgmId) {
+                                playAmbientBgm(previewingBgmId || selectedBgmId, next);
+                              }
+                              return next;
+                            });
+                          }}
+                          className="w-7 h-7 rounded-xl border border-current/15 bg-current/5 hover:bg-current/10 flex items-center justify-center shrink-0 active:scale-95 transition-transform"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
                       </div>
 
-                      {/* BGMトラック一覧 */}
-                      <div className="flex flex-col gap-1.5">
+                      {/* Quick Volume Presets */}
+                      <div className="grid grid-cols-5 gap-1.5">
+                        {[0, 25, 50, 75, 100].map((preset) => {
+                          const isSelectedPreset = bgmVolume === preset;
+                          return (
+                            <button
+                              key={preset}
+                              type="button"
+                              onClick={() => {
+                                setBgmVolume(preset);
+                                if (isRunning || previewingBgmId) {
+                                  playAmbientBgm(previewingBgmId || selectedBgmId, preset);
+                                }
+                              }}
+                              className="py-1 rounded-xl border text-[10px] font-mono font-bold transition-all"
+                              style={{
+                                backgroundColor: isSelectedPreset ? activeCategory.softBg : undefined,
+                                borderColor: isSelectedPreset ? activeCategory.color : 'rgba(148,163,184,0.25)',
+                                color: isSelectedPreset ? activeCategory.color : undefined,
+                              }}
+                            >
+                              {preset === 0 ? '消音' : `${preset}%`}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* BGMトラック一覧（アラーム音UIと完全同一スタイル・注釈なし） */}
+                      <div className="flex flex-col gap-1.5 mt-1">
                         {AMBIENT_BGM_TRACKS.map((track) => {
                           const isSelected = selectedBgmId === track.id;
                           const isPreviewing = previewingBgmId === track.id;
+
                           return (
                             <div
                               key={track.id}
@@ -11031,15 +10956,19 @@ export default function App() {
                                 borderColor: isSelected ? activeCategory.color : undefined,
                               }}
                             >
-                              <div className="flex items-center gap-2.5 min-w-0">
-                                <span className="text-base shrink-0">{track.emoji}</span>
-                                <div className="flex flex-col min-w-0">
-                                  <span className="text-xs font-black truncate">{track.label}</span>
-                                  <span className="text-[10px] opacity-65 truncate font-semibold">{track.sub}</span>
-                                </div>
+                              <div className="flex items-center gap-2 min-w-0">
+                                <Music
+                                  className="w-4 h-4 shrink-0"
+                                  style={{
+                                    color: isSelected ? activeCategory.color : undefined,
+                                  }}
+                                />
+                                <span className="text-xs font-bold truncate">
+                                  {track.label}
+                                </span>
                               </div>
 
-                              {track.src && (
+                              {track.src ? (
                                 <button
                                   type="button"
                                   onClick={(e) => {
@@ -11058,9 +10987,10 @@ export default function App() {
                                     color: isPreviewing ? activeCategory.color : undefined,
                                   }}
                                 >
-                                  <span>{isPreviewing ? '⏹ 停止' : '▶ 試聴'}</span>
+                                  <Volume2 className="w-3.5 h-3.5" />
+                                  <span>{isPreviewing ? '停止' : '試聴'}</span>
                                 </button>
-                              )}
+                              ) : null}
                             </div>
                           );
                         })}
