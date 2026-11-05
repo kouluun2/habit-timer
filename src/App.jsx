@@ -85,6 +85,7 @@ import {
 } from './firebaseLeague';
 import { getCompanionDialogue } from './aiCoach';
 import { AtomicTimerDisplay } from './components/cute-timer/AtomicTimerDisplay';
+import { useNativeTouchGuard } from './hooks/useNativeTouchGuard';
 
 // ==========================================
 // 1. CONSTANTS: CATEGORIES, THEMES & RICH CHARACTERS
@@ -5982,6 +5983,7 @@ const REWARD_ITEMS = [
 // ==========================================
 
 export default function App() {
+  useNativeTouchGuard();
   const loadInitialState = () => {
     try {
       // Request persistent storage so mobile OS never evicts user data
@@ -8736,10 +8738,10 @@ export default function App() {
   // ==========================================
   const screenContent = (
     <div
-      className={`relative w-full select-none transition-colors duration-700 flex flex-col items-center justify-between ${
+      className={`relative w-full h-full select-none transition-colors duration-700 flex flex-col items-center justify-between overflow-hidden ${
         showPhoneBezel
-          ? 'h-full px-4 pt-11 pb-3 overflow-x-hidden overflow-y-auto no-scrollbar'
-          : 'min-h-[100dvh] h-[100dvh] safe-area-layout px-3 pt-2 pb-2 overflow-x-hidden overflow-y-auto no-scrollbar'
+          ? 'px-4 pt-11 pb-3'
+          : 'safe-area-layout px-3 pt-2 pb-2'
       } ${currentTheme.bg} ${currentTheme.text}`}
     >
       {/* iOS Status Bar & Dynamic Island (Only when Demo Phone Frame is active) */}
@@ -8793,7 +8795,7 @@ export default function App() {
       <motion.div
         whileTap={{ scale: 0.985 }}
         onClick={() => setShowTimelineModal(true)}
-        className={`relative z-20 w-full max-w-md px-3.5 py-1.5 rounded-2xl backdrop-blur-xl border flex items-center justify-between shadow-sm shrink-0 mt-0.5 mb-1 transition-all select-none cursor-pointer group touch-manipulation ${currentTheme.card}`}
+        className={`relative z-20 w-full max-w-md px-3.5 py-1.5 rounded-2xl backdrop-blur-xl border flex items-center justify-between shadow-sm shrink-0 mt-0.5 mb-1 transition-all select-none cursor-pointer group touch-manipulation no-pan ${currentTheme.card}`}
         style={{
           borderColor: streak > 0 ? 'rgba(245, 158, 11, 0.45)' : undefined,
           boxShadow: streak > 0 ? '0 0 16px rgba(245, 158, 11, 0.12)' : undefined,
@@ -8902,7 +8904,7 @@ export default function App() {
       {/* ==========================================
           TOP BAR: SETTINGS, CURRENT LEVEL (TAP FOR NEXT LEVEL XP), PAST DATA
           ========================================== */}
-      <header className="relative z-20 w-full max-w-md flex flex-col items-center gap-1.5 pt-0.5 shrink-0">
+      <header className="no-pan relative z-20 w-full max-w-md flex flex-col items-center gap-1.5 pt-0.5 shrink-0">
         <div className="w-full flex items-center justify-between gap-1.5">
           {/* Left Controls: Settings & Admin Dashboard */}
           <div className="flex items-center gap-1 shrink-0">
@@ -9112,7 +9114,7 @@ export default function App() {
       {/* ==========================================
           CENTER: LARGER TIMER + ROAMING CHARACTER PLAYGROUND
           ========================================== */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center w-full max-w-md mt-2 mb-1">
+      <main className="no-pan relative z-10 flex-1 min-h-0 flex flex-col items-center justify-center w-full max-w-md mt-1 mb-1">
         {activeTask && (
           <div className="flex flex-col items-center gap-1.5 mb-2">
             <motion.div
@@ -9241,7 +9243,7 @@ export default function App() {
         {/* ==========================================
             ROAMING CHARACTER PLAYGROUND
             ========================================== */}
-        <div className="relative w-full flex flex-col items-center">
+        <div className="no-pan relative w-full flex flex-col items-center overflow-hidden [overflow:clip] [contain:paint]">
           <AnimatePresence>
             {petHearts.map((h) => (
               <motion.div
@@ -9272,7 +9274,7 @@ export default function App() {
         {/* ==========================================
             PRIMARY TIMER ACTION CONTROLS
             ========================================== */}
-        <div className="flex items-center justify-center gap-4 mt-1">
+        <div className="no-pan flex items-center justify-center gap-4 mt-1 shrink-0">
           <motion.button
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.9 }}
@@ -9307,7 +9309,7 @@ export default function App() {
           ========================================== */}
       <footer className="relative z-10 w-full max-w-md flex flex-col gap-1.5 shrink-0">
         <div
-          className={`w-full p-2 rounded-2xl backdrop-blur-2xl border flex items-center gap-2 overflow-x-auto no-scrollbar ${currentTheme.card}`}
+          className={`w-full p-2 rounded-2xl backdrop-blur-2xl border flex items-center gap-2 scroll-x ${currentTheme.card}`}
         >
           {tasks.length === 0 ? (
             <button
@@ -13315,7 +13317,7 @@ export default function App() {
 
   if (!showPhoneBezel) {
     return (
-      <div className="relative min-h-screen w-full">
+      <div className="relative h-full w-full overflow-hidden">
         <button
           onClick={() => setShowPhoneBezel(true)}
           className="hidden sm:flex fixed bottom-4 right-4 z-50 px-3 py-2 rounded-2xl bg-black/60 hover:bg-black/80 text-white border border-white/15 backdrop-blur-xl items-center gap-2 text-xs font-bold shadow-xl transition-all"

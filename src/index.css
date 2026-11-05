@@ -2,19 +2,52 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, #root {
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  -webkit-user-select: none;
-  font-family: 'Quicksand', 'M PLUS Rounded 1c', ui-rounded, 'Hiragino Maru Gothic ProN', 'Nunito', sans-serif;
+@layer base {
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    font-family: 'Quicksand', 'M PLUS Rounded 1c', ui-rounded, 'Hiragino Maru Gothic ProN', 'Nunito', sans-serif;
+  }
+
+  body {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  #root {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    overflow: clip;
+    touch-action: manipulation;
+    overscroll-behavior: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+
+  button, [role="button"], a {
+    touch-action: manipulation;
+  }
 }
 
-button, [role="button"], a, input, select {
-  touch-action: manipulation;
-}
-
-/* GPU Hardware Acceleration for ultra-low mobile CPU overhead & 120fps smoothness */
+/* GPU Hardware Acceleration */
 .gpu-accelerated {
   transform: translateZ(0);
   backface-visibility: hidden;
@@ -22,6 +55,34 @@ button, [role="button"], a, input, select {
 }
 
 @layer utilities {
+  /* Horizontal scroll area (task dock) */
+  .scroll-x {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior: contain;
+    touch-action: pan-x;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scroll-x::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Vertical scroll area (modals) */
+  .scroll-y {
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Static non-scrollable region (disables pan gesture propagation) */
+  .no-pan {
+    touch-action: none;
+  }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }

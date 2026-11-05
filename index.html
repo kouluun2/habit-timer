@@ -2,9 +2,10 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
     <meta name="theme-color" content="#FFFDF9" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="習慣タイマー" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,13 +16,13 @@
     <link rel="apple-touch-icon" href="./icon.svg" />
     <title>習慣タイマー</title>
   </head>
-  <body class="bg-[#FFFDF9] text-stone-800 antialiased selection:bg-rose-100 overscroll-none" style="font-family: 'Quicksand', 'M PLUS Rounded 1c', ui-rounded, 'Hiragino Maru Gothic ProN', sans-serif;">
+  <body class="bg-[#FFFDF9] text-stone-800 antialiased selection:bg-rose-100" style="font-family: 'Quicksand', 'M PLUS Rounded 1c', ui-rounded, 'Hiragino Maru Gothic ProN', sans-serif;">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js?v=20261106_v27').catch(() => {});
+          navigator.serviceWorker.register('./sw.js?v=20261106_v28').catch(() => {});
         });
       }
     </script>
