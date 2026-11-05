@@ -84,6 +84,7 @@ import {
   adminDeleteUserRecord,
 } from './firebaseLeague';
 import { getCompanionDialogue } from './aiCoach';
+import { AtomicTimerDisplay } from './components/cute-timer/AtomicTimerDisplay';
 
 // ==========================================
 // 1. CONSTANTS: CATEGORIES, THEMES & RICH CHARACTERS
@@ -604,6 +605,44 @@ const CHARACTERS = [
 ];
 
 const THEMES = [
+  {
+    id: 'pastel-milky',
+    name: 'ぽてミルキー',
+    scenery: 'pastel-milky',
+    isLight: true,
+    unlockLevel: 1,
+    bg: 'bg-gradient-to-b from-[#FFFDF9] via-[#FFF5F7] to-[#FFF0F3]',
+    preview: 'linear-gradient(135deg, #FFF0F3 0%, #FFE4E8 50%, #FFD6DE 100%)',
+    card: 'bg-white/92 border-rose-200/80 shadow-[0_16px_36px_-10px_rgba(255,141,161,0.22)]',
+    modalCard: 'bg-[#FFFDFC]/98 border-rose-200/80 shadow-2xl shadow-rose-950/15',
+    pill: 'bg-rose-50/90 hover:bg-rose-100/80 border-rose-200/70',
+    subPanel: 'bg-rose-100/75',
+    activeTab: 'bg-white shadow-sm text-rose-800',
+    backdrop: 'bg-rose-950/35',
+    text: 'text-stone-800',
+    subtext: 'text-stone-500',
+    ringTrack: 'rgba(255, 141, 161, 0.16)',
+    chartDotStroke: '#FFFFFF',
+  },
+  {
+    id: 'sakura-latte',
+    name: 'さくらラテ',
+    scenery: 'sakura',
+    isLight: true,
+    unlockLevel: 1,
+    bg: 'bg-gradient-to-b from-[#FFF8F8] via-[#FFF0F3] to-[#FCE7F3]',
+    preview: 'linear-gradient(135deg, #FFF0F5 0%, #FCE7F3 50%, #FBCFE8 100%)',
+    card: 'bg-white/90 border-pink-200/80 shadow-[0_16px_36px_-10px_rgba(244,114,182,0.2)]',
+    modalCard: 'bg-[#FFF9FB]/98 border-pink-200/80 shadow-2xl shadow-pink-950/15',
+    pill: 'bg-pink-50/90 hover:bg-pink-100/80 border-pink-200/70',
+    subPanel: 'bg-pink-100/75',
+    activeTab: 'bg-white shadow-sm text-pink-800',
+    backdrop: 'bg-pink-950/35',
+    text: 'text-stone-800',
+    subtext: 'text-stone-500',
+    ringTrack: 'rgba(244, 114, 182, 0.16)',
+    chartDotStroke: '#FFFFFF',
+  },
   {
     id: 'dark-mode',
     name: 'スレート黒',
@@ -3819,7 +3858,7 @@ const RoamingCompanionPlayground = memo(function RoamingCompanionPlayground({
   const tailX = activeCharPos ? Math.max(-95, Math.min(95, activeCharPos.x)) : 0;
 
   return (
-    <div className="relative w-full max-w-md h-24 sm:h-28 flex items-center justify-center overflow-visible my-0 select-none">
+    <div className="relative w-full max-w-md h-28 sm:h-32 flex items-center justify-center overflow-visible my-0 select-none">
       {/* Comic Speech Bubble */}
       <AnimatePresence>
         {speechBubble && (
@@ -3831,7 +3870,7 @@ const RoamingCompanionPlayground = memo(function RoamingCompanionPlayground({
             transition={{ type: 'spring', stiffness: 380, damping: 24 }}
             onClick={handleBubbleTap}
             style={{ zIndex: 350 }}
-            className="absolute -top-24 sm:-top-28 max-w-[310px] w-[92%] sm:w-auto px-4 py-2 rounded-2xl bg-white/95 dark:bg-zinc-800/95 text-slate-800 dark:text-slate-100 shadow-2xl border border-indigo-200/60 dark:border-zinc-700/60 backdrop-blur-md cursor-pointer transition-colors companion-dialogue-bubble pointer-events-auto touch-manipulation select-none"
+            className="absolute -top-26 sm:-top-30 max-w-[310px] w-[92%] sm:w-auto px-4 py-2 rounded-2xl bg-white/95 dark:bg-zinc-800/95 text-slate-800 dark:text-slate-100 shadow-2xl border border-indigo-200/60 dark:border-zinc-700/60 backdrop-blur-md cursor-pointer transition-colors companion-dialogue-bubble pointer-events-auto touch-manipulation select-none"
           >
             <div className="flex items-center justify-between gap-2 mb-1">
               <div className="flex items-center gap-1.5">
@@ -3896,7 +3935,8 @@ const RoamingCompanionPlayground = memo(function RoamingCompanionPlayground({
         const finalZIndex = isSpeaking ? 300 : isBouncing ? 250 : depthZIndex;
 
         // Unified character size for all companions (main and side companions are identical size)
-        const UNIFIED_ROAMING_SIZE = 88;
+        // Character size scaled by 1.1x (88 -> 97px) as requested
+        const UNIFIED_ROAMING_SIZE = 97;
 
         return (
           <motion.div
@@ -4050,6 +4090,69 @@ function ThemeSceneryBackdrop({ scenery, isRunning }) {
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
+
+      {/* 0-A. PASTEL MILKY (ぽてミルキー / 愛されパステルテーマ) - 超軽量GPU加速パステルオーラ */}
+      {scenery === 'pastel-milky' && (
+        <div className="relative w-full h-full pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-[#FFFDF9] via-[#FFF5F7] to-[#FFF0F3]" />
+          <motion.div
+            className="absolute -top-20 -left-20 w-80 h-80 rounded-full blur-2xl opacity-50 gpu-accelerated"
+            style={{ background: 'radial-gradient(circle, #FFE4E8 0%, transparent 70%)' }}
+            animate={isRunning ? {
+              scale: [1, 1.18, 1],
+              x: [0, 15, 0],
+              y: [0, 12, 0],
+            } : { scale: 1, x: 0, y: 0 }}
+            transition={{ duration: 6 * speed, repeat: isRunning ? Infinity : 0, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="absolute top-1/3 -right-20 w-80 h-80 rounded-full blur-2xl opacity-40 gpu-accelerated"
+            style={{ background: 'radial-gradient(circle, #E0F2FE 0%, transparent 70%)' }}
+            animate={isRunning ? {
+              scale: [1.08, 0.95, 1.08],
+              x: [0, -14, 0],
+            } : { scale: 1, x: 0 }}
+            transition={{ duration: 7 * speed, repeat: isRunning ? Infinity : 0, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="absolute bottom-10 left-1/4 w-72 h-72 rounded-full blur-2xl opacity-35 gpu-accelerated"
+            style={{ background: 'radial-gradient(circle, #FEF3C7 0%, transparent 70%)' }}
+            animate={isRunning ? {
+              scale: [0.96, 1.12, 0.96],
+            } : { scale: 1 }}
+            transition={{ duration: 8 * speed, repeat: isRunning ? Infinity : 0, ease: 'easeInOut' }}
+          />
+          {[
+            { x: '18%', y: '28%', size: 14, delay: 0 },
+            { x: '82%', y: '36%', size: 18, delay: 1.2 },
+            { x: '25%', y: '68%', size: 12, delay: 2.1 },
+            { x: '75%', y: '72%', size: 16, delay: 0.8 },
+          ].map((bubble, bIdx) => (
+            <motion.div
+              key={bIdx}
+              className="absolute rounded-full border border-pink-300/30 bg-white/50 gpu-accelerated"
+              style={{
+                left: bubble.x,
+                top: bubble.y,
+                width: bubble.size,
+                height: bubble.size,
+                boxShadow: '0 2px 6px rgba(255, 182, 193, 0.25)',
+              }}
+              animate={isRunning ? {
+                y: [0, -14, 0],
+                opacity: [0.35, 0.75, 0.35],
+                scale: [1, 1.1, 1],
+              } : { y: 0, opacity: 0.4, scale: 1 }}
+              transition={{
+                duration: 3 + bIdx,
+                delay: bubble.delay,
+                repeat: isRunning ? Infinity : 0,
+                ease: 'easeInOut',
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       {/* 0. MINIMAL DARK (スレート黒 / デフォルトテーマ) - 呼吸するサイバーパルスリング・浮遊星屑・流星 */}
       {scenery === 'minimal-dark' && (
@@ -5242,6 +5345,24 @@ const formatTotalMinutesReadable = (totalMinutes) => {
 // Standard Alarm Sounds & Manner-Mode Bypass Audio Engine
 const ALARM_SOUNDS = [
   {
+    id: 'marimba',
+    label: '優しいマリンバ',
+    src: './alarms/alarm-marimba.mp3',
+    volume: 1.0,
+  },
+  {
+    id: 'morning',
+    label: '朝露（アコースティック）',
+    src: './alarms/alarm-morning.mp3',
+    volume: 1.0,
+  },
+  {
+    id: 'chime',
+    label: '星屑チャイム',
+    src: './alarms/alarm-chime.mp3',
+    volume: 1.0,
+  },
+  {
     id: 'digital',
     label: 'デジタルアラーム',
     src: './alarms/alarm-digital.mp3',
@@ -5274,11 +5395,13 @@ let currentAlarmGainNode = null;
 const audioBufferCache = {};
 let isPreloadingBuffers = false;
 
-const configurePlaybackAudioSession = () => {
+const configurePlaybackAudioSession = (mannerPolicy = 'bypass') => {
   try {
-    // iOS 16.4+ Web Audio Session API: 'playback' ignores the physical Silent/Manner switch!
+    // iOS 16.4+ Web Audio Session API:
+    // 'playback' ignores the physical Silent/Manner switch (マナーモード貫通)
+    // 'ambient' respects the physical Silent/Manner switch (マナーモード時は自動消音)
     if (typeof navigator !== 'undefined' && 'audioSession' in navigator && navigator.audioSession) {
-      navigator.audioSession.type = 'playback';
+      navigator.audioSession.type = mannerPolicy === 'respect' ? 'ambient' : 'playback';
     }
   } catch (e) {
     // Ignore on unsupported browsers
@@ -5351,12 +5474,23 @@ const stopVibrationLoop = () => {
 // High-fidelity Web Audio API & Manner-Mode Bypass Audio Engine
 let synthOscillatorInterval = null;
 
-// Synthesis fallback beep (guaranteed sound on any device without relying on external files)
-const playSynthesizedBeep = (gainVal = 0.8) => {
+// High-fidelity synthetic fallback (zero external files required, pleasant soothing tones)
+const playSynthesizedMelody = (alarmSoundId = 'marimba', gainVal = 0.8) => {
   try {
     const ctx = getSharedAudioContext();
     if (!ctx) return;
     if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+
+    stopSynthesizedBeep();
+
+    // Pentatonic scale frequencies for soothing wakeup
+    const notesMarimba = [392.00, 493.88, 587.33, 659.25, 783.99, 659.25]; // G4, B4, D5, E5, G5, E5
+    const notesChime = [659.25, 830.61, 987.77, 1318.51, 987.77]; // E5, G#5, B5, E6, B5
+    let noteIdx = 0;
+
+    const isGentle = alarmSoundId === 'marimba' || alarmSoundId === 'morning' || alarmSoundId === 'chime';
+    const noteList = alarmSoundId === 'chime' ? notesChime : notesMarimba;
+    const intervalMs = isGentle ? 360 : 320;
 
     const playTone = () => {
       try {
@@ -5364,25 +5498,46 @@ const playSynthesizedBeep = (gainVal = 0.8) => {
         const now = ctx.currentTime;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = 'square'; // Classic penetrative alarm beep
-        osc.frequency.setValueAtTime(920, now);
-        osc.frequency.setValueAtTime(1840, now + 0.08);
 
-        const targetVolume = Math.max(0.1, Math.min(1.0, gainVal));
-        gain.gain.setValueAtTime(targetVolume, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+        if (isGentle) {
+          osc.type = alarmSoundId === 'chime' ? 'sine' : 'triangle';
+          const freq = noteList[noteIdx % noteList.length];
+          noteIdx++;
+          osc.frequency.setValueAtTime(freq, now);
 
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.25);
+          const targetVolume = Math.max(0.05, Math.min(1.0, gainVal));
+          gain.gain.setValueAtTime(targetVolume * 0.7, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.38);
+        } else {
+          // Classic penetrative beep for 'digital', 'bell', 'beep'
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(920, now);
+          osc.frequency.setValueAtTime(1840, now + 0.08);
+
+          const targetVolume = Math.max(0.1, Math.min(1.0, gainVal));
+          gain.gain.setValueAtTime(targetVolume, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        }
       } catch (e) {}
     };
 
     playTone();
-    if (synthOscillatorInterval) clearInterval(synthOscillatorInterval);
-    synthOscillatorInterval = setInterval(playTone, 320);
+    synthOscillatorInterval = setInterval(playTone, intervalMs);
   } catch (e) {}
+};
+
+const playSynthesizedBeep = (gainVal = 0.8) => {
+  playSynthesizedMelody('beep', gainVal);
 };
 
 const stopSynthesizedBeep = () => {
@@ -5401,8 +5556,8 @@ let alarmAudioUnlocked = false;
 let unlockInFlight = false;
 const SILENT_UNLOCK_SRC = './alarms/silent.mp3';
 
-const unlockAudioForMannerMode = (alarmSoundId = 'digital') => {
-  configurePlaybackAudioSession();
+const unlockAudioForMannerMode = (alarmSoundId = 'digital', mannerPolicy = 'bypass') => {
+  configurePlaybackAudioSession(mannerPolicy);
   const ctx = getSharedAudioContext();
   if (ctx && ctx.state === 'suspended') {
     ctx.resume().catch(() => {});
@@ -5451,7 +5606,7 @@ const unlockAudioForMannerMode = (alarmSoundId = 'digital') => {
 };
 
 // Real-time volume adjuster: immediately alters currently playing alarm sound
-const setLiveAlarmVolume = (volumePct, alarmSoundId = 'digital') => {
+const setLiveAlarmVolume = (volumePct, alarmSoundId = 'marimba') => {
   const clampedPct = Math.max(0, Math.min(100, Number(volumePct) || 0));
   currentAlarmVolumePct = clampedPct;
   const soundObj = ALARM_SOUNDS.find((s) => s.id === alarmSoundId) || ALARM_SOUNDS[0];
@@ -5465,9 +5620,8 @@ const setLiveAlarmVolume = (volumePct, alarmSoundId = 'digital') => {
     } catch (e) {}
   }
 
-  // 2. Native HTMLAudioElement (Manner mode bypass) — only touch it while actually ringing,
-  // otherwise unmuting could leak sound from a pending unlock playback.
-  if (activeAlarmAudio && isAlarmAudioActive) {
+  // 2. Native HTMLAudioElement: only alter volume if it's the primary audible playback (fallback mode)
+  if (activeAlarmAudio && isAlarmAudioActive && !currentAlarmSourceNode) {
     try {
       activeAlarmAudio.muted = clampedPct === 0;
       activeAlarmAudio.volume = targetGain;
@@ -5475,8 +5629,8 @@ const setLiveAlarmVolume = (volumePct, alarmSoundId = 'digital') => {
   }
 };
 
-const startSilentKeepAlive = (alarmSoundId = 'digital', volumePct = currentAlarmVolumePct) => {
-  configurePlaybackAudioSession();
+const startSilentKeepAlive = (alarmSoundId = 'digital', volumePct = currentAlarmVolumePct, mannerPolicy = 'bypass') => {
+  configurePlaybackAudioSession(mannerPolicy);
   getSharedAudioContext();
   preloadAlarmBuffers();
   unlockAudioForMannerMode(alarmSoundId);
@@ -5532,14 +5686,15 @@ const stopStandardAlarm = (onStoppedCallback) => {
 };
 
 const triggerAlarmAndVibration = (
-  alarmSoundId = 'digital',
+  alarmSoundId = 'marimba',
   onStoppedCallback,
   durationMs = 6000,
   volumePct = currentAlarmVolumePct,
-  enableVibration = true
+  enableVibration = true,
+  mannerPolicy = 'bypass'
 ) => {
   stopStandardAlarm();
-  configurePlaybackAudioSession();
+  configurePlaybackAudioSession(mannerPolicy);
   preloadAlarmBuffers();
 
   const clampedPct = Math.max(0, Math.min(100, Number(volumePct) || 0));
@@ -5559,44 +5714,9 @@ const triggerAlarmAndVibration = (
     return;
   }
 
-  // 2. Play Native HTMLAudioElement (CRITICAL FOR MANNER MODE: ignores physical Silent switch on iOS when audioSession.type = 'playback')
-  let isHtmlAudioPlaying = false;
-  isAlarmAudioActive = true;
-  try {
-    if (!activeAlarmAudio) {
-      activeAlarmAudio = new Audio(soundObj.src);
-      activeAlarmAudio.setAttribute('playsinline', 'true');
-    } else if (!activeAlarmAudio.src.endsWith(soundObj.src.replace('./', ''))) {
-      activeAlarmAudio.src = soundObj.src;
-    }
-    activeAlarmAudio.loop = true;
-    activeAlarmAudio.muted = false; // ★絶対条件: muted=false でメディア再生として鳴らすことでマナーモードを貫通！
-    activeAlarmAudio.volume = targetGain;
-    activeAlarmAudio.currentTime = 0;
-
-    const playPromise = activeAlarmAudio.play();
-    if (playPromise && typeof playPromise.then === 'function') {
-      playPromise
-        .then(() => {
-          isHtmlAudioPlaying = true;
-          stopSilentKeepAlive();
-        })
-        .catch((err) => {
-          console.warn('HTMLAudio play blocked, activating synthetic beep fallback:', err);
-          stopSilentKeepAlive();
-          playSynthesizedBeep(targetGain);
-        });
-    } else {
-      isHtmlAudioPlaying = true;
-      stopSilentKeepAlive();
-    }
-  } catch (e) {
-    console.warn('HTMLAudio error, activating synthetic beep fallback:', e);
-    stopSilentKeepAlive();
-    playSynthesizedBeep(targetGain);
-  }
-
-  // 3. Play Web Audio API buffer as well (provides dual reinforcement and precise volume curve)
+  // 2. Play Web Audio API buffer as PRIMARY
+  // Guarantees sample-accurate seamless looping and 100% volume control on iOS/Android/PC with ZERO double-playback jitter
+  let isWebAudioPlaying = false;
   const ctx = getSharedAudioContext();
   if (ctx) {
     try {
@@ -5618,11 +5738,56 @@ const triggerAlarmAndVibration = (
 
         currentAlarmSourceNode = source;
         currentAlarmGainNode = gainNode;
-      } else if (!isHtmlAudioPlaying) {
-        // If file not cached yet and HTMLAudio didn't start, beep immediately!
-        playSynthesizedBeep(targetGain);
+        isWebAudioPlaying = true;
       }
     } catch (e) {}
+  }
+
+  // 3. Play Native HTMLAudioElement (CRITICAL FOR MANNER MODE BYPASS on iOS)
+  // If Web Audio is already playing cleanly, HTMLAudio plays silent.mp3 to hold the hardware iOS playback session
+  // alive without creating an out-of-sync dual-playback echo!
+  // If Web Audio could not play, HTMLAudio plays soundObj.src audibly as fallback.
+  isAlarmAudioActive = true;
+  const audioSrcToPlay = isWebAudioPlaying ? SILENT_UNLOCK_SRC : soundObj.src;
+  try {
+    if (!activeAlarmAudio) {
+      activeAlarmAudio = new Audio(audioSrcToPlay);
+      activeAlarmAudio.setAttribute('playsinline', 'true');
+    } else if (!activeAlarmAudio.src.endsWith(audioSrcToPlay.replace('./', ''))) {
+      activeAlarmAudio.src = audioSrcToPlay;
+    }
+    activeAlarmAudio.loop = true;
+    activeAlarmAudio.muted = false; // Bypass manner mode on iOS
+    activeAlarmAudio.volume = isWebAudioPlaying ? 0.01 : targetGain;
+    activeAlarmAudio.currentTime = 0;
+
+    const playPromise = activeAlarmAudio.play();
+    if (playPromise && typeof playPromise.then === 'function') {
+      playPromise
+        .then(() => {
+          stopSilentKeepAlive();
+        })
+        .catch((err) => {
+          console.warn('HTMLAudio play blocked:', err);
+          stopSilentKeepAlive();
+          if (!isWebAudioPlaying) {
+            playSynthesizedMelody(alarmSoundId, targetGain);
+          }
+        });
+    } else {
+      stopSilentKeepAlive();
+    }
+  } catch (e) {
+    console.warn('HTMLAudio error:', e);
+    stopSilentKeepAlive();
+    if (!isWebAudioPlaying) {
+      playSynthesizedMelody(alarmSoundId, targetGain);
+    }
+  }
+
+  // 4. Absolute failsafe: if neither Web Audio nor HTMLAudio is playing
+  if (!isWebAudioPlaying && (!activeAlarmAudio || activeAlarmAudio.paused)) {
+    playSynthesizedMelody(alarmSoundId, targetGain);
   }
 
   // Automatically stop alarm and vibration when durationMs finishes
@@ -5919,9 +6084,9 @@ export default function App() {
   const [showXpDetail, setShowXpDetail] = useState(false);
 
   // Customization & Companion Character State
-  const [themeId, setThemeId] = useState(saved?.themeId || 'dark-mode');
+  const [themeId, setThemeId] = useState(saved?.themeId || 'pastel-milky');
   const [timerStyle, setTimerStyle] = useState(saved?.timerStyle || 'ring');
-  const [alarmSoundId, setAlarmSoundId] = useState(saved?.alarmSoundId || 'digital');
+  const [alarmSoundId, setAlarmSoundId] = useState(saved?.alarmSoundId || 'marimba');
   const [alarmVolume, setAlarmVolume] = useState(() =>
     typeof saved?.alarmVolume === 'number' ? Math.max(0, Math.min(100, saved.alarmVolume)) : 80
   );
@@ -5931,6 +6096,10 @@ export default function App() {
   );
   const [alarmVibration, setAlarmVibration] = useState(() =>
     typeof saved?.alarmVibration === 'boolean' ? saved.alarmVibration : true
+  );
+  // 'bypass': マナーモードでもオン（マナーモード貫通） | 'respect': マナーモードはオフ（消音・バイブのみ）
+  const [alarmMannerModePolicy, setAlarmMannerModePolicy] = useState(() =>
+    saved?.alarmMannerModePolicy === 'respect' ? 'respect' : 'bypass'
   );
   const [isAlarmRinging, setIsAlarmRinging] = useState(false);
   // Up to 3 companion characters can be selected at once (first one = main character)
@@ -6578,6 +6747,9 @@ export default function App() {
         if (typeof backup.alarmVibration === 'boolean') {
           setAlarmVibration(backup.alarmVibration);
         }
+        if (backup.alarmMannerModePolicy) {
+          setAlarmMannerModePolicy(backup.alarmMannerModePolicy);
+        }
         if (Array.isArray(backup.selectedCharIds) && backup.selectedCharIds.length > 0) {
           setSelectedCharIds(backup.selectedCharIds.slice(0, MAX_SELECTED_CHARACTERS));
         } else if (backup.selectedCharId) {
@@ -6648,6 +6820,7 @@ export default function App() {
         alarmVolume,
         alarmDurationSec,
         alarmVibration,
+        alarmMannerModePolicy,
         selectedCharId,
         selectedCharIds,
         leagueTierIndex,
@@ -6699,6 +6872,7 @@ export default function App() {
     alarmVolume,
     alarmDurationSec,
     alarmVibration,
+    alarmMannerModePolicy,
     selectedCharId,
     selectedCharIds,
     leagueTierIndex,
@@ -6720,8 +6894,56 @@ export default function App() {
 
   // --- Timestamp-Based Timer Engine (Background-Safe, No Shortcuts) ---
   const completeCallbackRef = useRef(null);
+  const isTimerFinishingRef = useRef(false);
+
+  // 1分ごとのXP加算ハンドラ（AtomicTimerDisplayから1分に1回だけ通知を受け取り、毎秒再レンダリングを回避）
+  const handleMinuteTick = useCallback((elapsedMinutes) => {
+    if (!activeTask || activeTask.completed || justCompleted) return;
+    const setMins = getTaskSetMinutes(activeTask);
+    const validElapsed = Math.min(setMins, elapsedMinutes);
+    const alreadyCredited = activeTask.creditedMinutes || 0;
+    const newlyEarned = validElapsed - alreadyCredited;
+
+    if (newlyEarned > 0) {
+      const prevLevel = levelInfo.level;
+      const nextXp = totalXp + newlyEarned;
+      const nextLevelInfo = getLevelInfo(nextXp);
+
+      setEarnedXp((prev) => prev + newlyEarned);
+      setTasks((prev) =>
+        prev.map((t) => {
+          if (t.id !== activeTask.id) return t;
+          const baseEdit = getTaskDurationEditStats(t, activityLogs);
+          const reqMins = Math.max(1, getTaskTotalMinutes(t) * REQUIRED_DURATION_RUNS);
+          const nextCycleTotal = baseEdit.cycleMinutes + newlyEarned;
+          const gainedTickets = Math.floor(nextCycleTotal / reqMins);
+          return {
+            ...t,
+            creditedMinutes: validElapsed,
+            durationEditTickets: baseEdit.tickets + gainedTickets,
+            durationCycleMinutes: nextCycleTotal % reqMins,
+          };
+        })
+      );
+
+      if (nextLevelInfo.level > prevLevel) {
+        const unlockedCharsNow = CHARACTERS.filter(
+          (c) => c.unlockLevel > prevLevel && c.unlockLevel <= nextLevelInfo.level
+        );
+        if (unlockedCharsNow.length > 0) {
+          const latestChar = unlockedCharsNow[unlockedCharsNow.length - 1];
+          setSelectedCharId(latestChar.id);
+          setNewlyUnlockedChar(latestChar);
+        }
+        setProposedTarget(nextLevelInfo.level);
+        setPendingLevelUp(true);
+      }
+    }
+  }, [activeTask, justCompleted, totalXp, levelInfo.level, activityLogs]);
 
   const handleTimerFinish = () => {
+    if (isTimerFinishingRef.current) return;
+    isTimerFinishingRef.current = true;
     setIsRunning(false);
     setStartTimestamp(null);
     setEndTimestamp(null);
@@ -6833,7 +7055,8 @@ export default function App() {
       () => setIsAlarmRinging(false),
       alarmDurationSec * 1000,
       alarmVolume,
-      alarmVibration
+      alarmVibration,
+      alarmMannerModePolicy
     );
 
     setTimeout(() => {
@@ -6843,6 +7066,9 @@ export default function App() {
 
   completeCallbackRef.current = handleTimerFinish;
 
+  // Atomic timer loop: Per-second re-renders are completely eliminated!
+  // Counting and SVG ring progress are directly driven via DOM in AtomicTimerDisplay,
+  // while this lightweight interval only triggers the completion callback.
   useEffect(() => {
     if (!isRunning || !endTimestamp) return;
 
@@ -6851,17 +7077,11 @@ export default function App() {
       const diff = endTimestamp - now;
       if (diff <= 0) {
         if (completeCallbackRef.current) completeCallbackRef.current();
-      } else {
-        // Only re-render when the displayed second changes (display is mm:ss granularity).
-        // Returning `prev` bails out of React rendering entirely.
-        setRemainingMs((prev) =>
-          Math.ceil(prev / 1000) === Math.ceil(diff / 1000) ? prev : diff
-        );
       }
     };
 
     tick();
-    const interval = setInterval(tick, 250);
+    const interval = setInterval(tick, 400);
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') tick();
     };
@@ -6928,6 +7148,7 @@ export default function App() {
       const baseMs = remainingMs > 0 ? remainingMs : activeTask.durationMs;
       const now = Date.now();
       setJustCompleted(false);
+      isTimerFinishingRef.current = false;
       setStartTimestamp(now);
       setEndTimestamp(now + baseMs);
       setIsRunning(true);
@@ -8914,215 +9135,23 @@ export default function App() {
           </div>
         )}
 
-        {/* MAIN CIRCULAR TIMER (SCALED UP EVEN MORE FOR BETTER PRESENCE) */}
-        <div className="relative z-30 w-80 h-80 sm:w-84 sm:h-84 flex items-center justify-center select-none">
-          {timerStyle === 'liquid' && (
-            <div
-              className={`absolute inset-4 rounded-full overflow-hidden backdrop-blur-2xl border transition-all duration-500 ${currentTheme.card}`}
-            >
-              <motion.div
-                className="absolute bottom-0 left-0 right-0 transition-all duration-300"
-                animate={{ height: `${Math.max(4, (1 - progress) * 100)}%` }}
-                style={{
-                  backgroundColor: activeCategory.color,
-                  opacity: 0.38,
-                  boxShadow: `0 -10px 30px ${activeCategory.glow}`,
-                }}
-              >
-                <motion.div
-                  animate={{ x: ['-25%', '0%', '-25%'] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                  className="w-[200%] h-6 -mt-3 rounded-[100%] opacity-60"
-                  style={{ backgroundColor: activeCategory.color }}
-                />
-              </motion.div>
-            </div>
-          )}
-
-          {timerStyle === 'pulse' && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              {[0, 1, 2].map((idx) => (
-                <motion.div
-                  key={idx}
-                  animate={
-                    isRunning
-                      ? {
-                          scale: [1, 1.08 + idx * 0.05, 1],
-                          opacity: [0.35 - idx * 0.08, 0.12, 0.35 - idx * 0.08],
-                        }
-                      : { scale: 1, opacity: 0.15 }
-                  }
-                  transition={{
-                    duration: 2.6,
-                    delay: idx * 0.4,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                  className="absolute rounded-full border-2"
-                  style={{
-                    width: `${82 - idx * 12}%`,
-                    height: `${82 - idx * 12}%`,
-                    borderColor: activeCategory.color,
-                    backgroundColor: idx === 2 ? activeCategory.glow : 'transparent',
-                  }}
-                />
-              ))}
-            </div>
-          )}
-
-          <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 280 280">
-            <defs>
-              <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="5" result="blur" />
-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
-              </filter>
-            </defs>
-
-            <circle
-              cx="140"
-              cy="140"
-              r="124"
-              stroke={currentTheme.ringTrack}
-              strokeWidth={timerStyle === 'ring' ? '16' : '7'}
-              fill="none"
-            />
-
-            {Array.from({ length: 12 }).map((_, i) => {
-              const angle = (i * 30 * Math.PI) / 180;
-              const x1 = 140 + 105 * Math.cos(angle);
-              const y1 = 140 + 105 * Math.sin(angle);
-              const x2 = 140 + 111 * Math.cos(angle);
-              const y2 = 140 + 111 * Math.sin(angle);
-              return (
-                <line
-                  key={i}
-                  x1={x1}
-                  y1={y1}
-                  x2={x2}
-                  y2={y2}
-                  stroke="currentColor"
-                  strokeOpacity={0.22}
-                  strokeWidth="2.4"
-                  strokeLinecap="round"
-                />
-              );
-            })}
-
-            <motion.circle
-              cx="140"
-              cy="140"
-              r="124"
-              stroke={activeCategory.color}
-              strokeWidth={timerStyle === 'ring' ? '16' : '9'}
-              strokeLinecap="round"
-              fill="none"
-              filter="url(#glow)"
-              strokeDasharray={2 * Math.PI * 124}
-              animate={{
-                strokeDashoffset: 2 * Math.PI * 124 * progress,
-              }}
-              transition={{ duration: isRunning ? 1 : 0.3, ease: 'linear' }}
-            />
-          </svg>
-
-          {/* CENTER GLASS CONTENT (BALANCED & RESPONSIVE) */}
-          <motion.div
-            whileTap={{ scale: 0.96 }}
-            onClick={toggleTimer}
-            className={`relative z-30 w-48 h-48 sm:w-56 sm:h-56 rounded-full backdrop-blur-2xl border flex flex-col items-center justify-center cursor-pointer transition-all px-3 select-none touch-manipulation ${currentTheme.card}`}
-            style={{
-              boxShadow: isRunning ? `0 0 48px ${activeCategory.glow}` : undefined,
-            }}
-          >
-            <AnimatePresence mode="wait">
-              {justCompleted || (activeTask && activeTask.completed) ? (
-                <motion.div
-                  key="completed-check"
-                  initial={{ scale: 0.3, opacity: 0, rotate: -30 }}
-                  animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                  exit={{ scale: 0.5, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 260, damping: 16 }}
-                  className="flex flex-col items-center justify-center gap-2"
-                >
-                  <div
-                    className="w-24 h-24 rounded-full flex items-center justify-center shadow-lg"
-                    style={{
-                      backgroundColor: activeCategory.color,
-                      boxShadow: `0 0 30px ${activeCategory.glow}`,
-                    }}
-                  >
-                    <Check className="w-12 h-12 text-white stroke-[3]" />
-                  </div>
-                  {activeTask && getTaskTotalSets(activeTask) > 1 && (
-                    <span className="font-mono text-xs font-extrabold tracking-tight">
-                      {activeTask.completed
-                        ? `全${getTaskTotalSets(activeTask)}セット完了`
-                        : `セット ${getTaskCompletedSets(activeTask)} / ${getTaskTotalSets(activeTask)} 完了`}
-                    </span>
-                  )}
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="active-countdown"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className={`flex flex-col items-center justify-center ${
-                    timerStyle === 'hourglass' ? 'gap-1' : 'gap-2'
-                  }`}
-                >
-                  {timerStyle === 'hourglass' ? (
-                    <HourglassTimerVisual
-                      progress={progress}
-                      color={activeCategory.color}
-                      glow={activeCategory.glow}
-                      isRunning={isRunning}
-                      height={92}
-                    />
-                  ) : (
-                  <motion.div
-                    animate={
-                      isRunning
-                        ? { y: [0, -4, 0], scale: [1, 1.08, 1] }
-                        : { y: 0, scale: 1 }
-                    }
-                    transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-                    className="p-3.5 rounded-2xl"
-                    style={{ backgroundColor: activeCategory.softBg }}
-                  >
-                    <ActiveIcon
-                      className="w-8 h-8"
-                      style={{ color: activeCategory.color }}
-                    />
-                  </motion.div>
-                  )}
-
-                  <div
-                    className={`font-mono font-bold tracking-tight tabular-nums ${
-                      timerStyle === 'hourglass'
-                        ? isLongFormat
-                          ? 'text-2xl sm:text-3xl'
-                          : 'text-4xl sm:text-[2.6rem]'
-                        : isLongFormat
-                          ? 'text-3xl sm:text-4xl'
-                          : 'text-5xl sm:text-[3.25rem]'
-                    }`}
-                  >
-                    {formattedCountdown}
-                  </div>
-
-                  <div className="opacity-55 mt-0.5">
-                    {isRunning ? (
-                      <Pause className="w-5 h-5 fill-current" />
-                    ) : (
-                      <Play className="w-5 h-5 fill-current ml-0.5" />
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        </div>
+        {/* MAIN ATOMIC TIMER DISPLAY (ZERO RE-RENDERING & 60FPS ATOMIC DRIVE) */}
+        <AtomicTimerDisplay
+          isRunning={isRunning}
+          endTimestamp={endTimestamp}
+          durationMs={activeTask ? getTaskSetMinutes(activeTask) * 60000 : 25 * 60 * 1000}
+          initialRemainingMs={remainingMs}
+          timerStyle={timerStyle}
+          activeCategory={activeCategory}
+          currentTheme={currentTheme}
+          justCompleted={justCompleted}
+          activeTask={activeTask}
+          toggleTimer={toggleTimer}
+          formatTime={formatTime}
+          HourglassTimerVisual={HourglassTimerVisual}
+          getTaskTotalSets={getTaskTotalSets}
+          getTaskCompletedSets={getTaskCompletedSets}
+        />
 
         {/* ==========================================
             ROAMING CHARACTER PLAYGROUND
@@ -10629,18 +10658,51 @@ export default function App() {
                             </div>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => setAlarmVibration((v) => !v)}
-                            className="px-2.5 py-0.5 rounded-lg border text-[10px] font-bold transition-all shrink-0"
-                            style={{
-                              backgroundColor: alarmVibration ? activeCategory.softBg : undefined,
-                              borderColor: alarmVibration ? activeCategory.color : 'rgba(148,163,184,0.25)',
-                              color: alarmVibration ? activeCategory.color : undefined,
-                            }}
-                          >
-                            振動 {alarmVibration ? 'ON' : 'OFF'}
-                          </button>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {/* マナーモード切り替えボタン */}
+                            <button
+                              type="button"
+                              onClick={() => setAlarmMannerModePolicy((p) => (p === 'bypass' ? 'respect' : 'bypass'))}
+                              className="px-2 py-0.5 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1"
+                              style={{
+                                backgroundColor: alarmMannerModePolicy === 'bypass' ? activeCategory.softBg : undefined,
+                                borderColor: alarmMannerModePolicy === 'bypass' ? activeCategory.color : 'rgba(148,163,184,0.25)',
+                                color: alarmMannerModePolicy === 'bypass' ? activeCategory.color : undefined,
+                              }}
+                              title={
+                                alarmMannerModePolicy === 'bypass'
+                                  ? 'マナーモードでもアラーム音を再生します'
+                                  : 'マナーモード時は消音（振動のみ）にします'
+                              }
+                            >
+                              <span>マナー時:</span>
+                              <span className="font-extrabold">{alarmMannerModePolicy === 'bypass' ? '音ON' : '消音'}</span>
+                            </button>
+
+                            {/* 振動切り替えボタン */}
+                            <button
+                              type="button"
+                              onClick={() => setAlarmVibration((v) => !v)}
+                              className="px-2.5 py-0.5 rounded-lg border text-[10px] font-bold transition-all"
+                              style={{
+                                backgroundColor: alarmVibration ? activeCategory.softBg : undefined,
+                                borderColor: alarmVibration ? activeCategory.color : 'rgba(148,163,184,0.25)',
+                                color: alarmVibration ? activeCategory.color : undefined,
+                              }}
+                            >
+                              振動 {alarmVibration ? 'ON' : 'OFF'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* マナーモード説明キャプション */}
+                        <div className="text-[10px] opacity-65 leading-tight px-1 flex items-center justify-between">
+                          <span>マナーモード設定:</span>
+                          <span className="font-semibold text-right">
+                            {alarmMannerModePolicy === 'bypass'
+                              ? 'マナーモードでもアラーム音を鳴らす（貫通）'
+                              : 'マナーモード時は消音（バイブのみ）'}
+                          </span>
                         </div>
                       </div>
 
@@ -10680,7 +10742,8 @@ export default function App() {
                                     () => setIsAlarmRinging(false),
                                     alarmDurationSec * 1000,
                                     alarmVolume,
-                                    alarmVibration
+                                    alarmVibration,
+                                    alarmMannerModePolicy
                                   );
                                 }}
                                 className="px-2.5 py-1 rounded-xl border border-current/20 bg-current/5 hover:bg-current/10 text-[10px] font-bold flex items-center gap-1 shrink-0"
