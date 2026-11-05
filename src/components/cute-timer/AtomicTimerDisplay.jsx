@@ -160,7 +160,7 @@ export const AtomicTimerDisplay = memo(function AtomicTimerDisplay({
       )}
 
       {/* SVG サークルプログレス */}
-      <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 280 280">
+      <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 280 280">
         <defs>
           <filter id="cuteAtomicGlow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="5" result="blur" />
