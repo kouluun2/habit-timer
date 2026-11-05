@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎧 集中アンビエントBGM 試聴スタジオ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@600;700;800;900&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: 'Quicksand', 'M PLUS Rounded 1c', sans-serif;
+      }
+      .waveform-bar {
+        animation: wave 1.2s ease-in-out infinite alternate;
+      }
+      @keyframes wave {
+        0% { height: 15%; }
+        100% { height: 95%; }
+      }
+    </style>
+  </head>
+  <body class="bg-[#FFFDF9] text-stone-800 min-h-screen flex flex-col items-center justify-center p-4">
+    <!-- 背景オーラ -->
+    <div class="fixed inset-0 pointer-events-none opacity-40 blur-3xl -z-10" style="background: radial-gradient(circle at 20% 30%, #FFE4E8 0%, transparent 50%), radial-gradient(circle at 80% 70%, #E0F2FE 0%, transparent 50%);"></div>
+
+    <main class="w-full max-w-md bg-white/90 backdrop-blur-2xl rounded-[36px] border border-rose-200/80 shadow-[0_20px_50px_-12px_rgba(255,141,161,0.25)] p-6 sm:p-8 flex flex-col gap-6">
+      
+      <!-- ヘッダー -->
+      <div class="text-center flex flex-col items-center gap-1.5">
+        <span class="px-3.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-500 text-xs font-black tracking-wider">
+          🎧 BGM PREVIEW STUDIO
+        </span>
+        <h1 class="text-2xl font-black text-stone-800 mt-1">アンビエント環境音 サンプル</h1>
+        <p class="text-xs text-stone-500 font-bold">カードをタップするとその場でループ再生されます♪</p>
+      </div>
+
+      <!-- トラックリスト -->
+      <div class="flex flex-col gap-3.5" id="trackList"></div>
+
+      <!-- 再生中コントロールバー -->
+      <div id="nowPlayingCard" class="hidden p-4 rounded-2xl bg-rose-50/70 border border-rose-200/80 flex flex-col gap-2.5 transition-all">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-lg" id="nowPlayingEmoji">☕</span>
+            <div class="flex flex-col">
+              <span class="text-xs font-black text-rose-800" id="nowPlayingTitle">放課後アイスラテ</span>
+              <span class="text-[10px] text-rose-600/75 font-bold" id="nowPlayingSub">再生中 (ループ)</span>
+            </div>
+          </div>
+          <!-- 波形アニメーション -->
+          <div class="flex items-center gap-1 h-6 w-12 justify-center">
+            <span class="w-1 bg-rose-400 rounded-full waveform-bar" style="animation-delay: 0.1s"></span>
+            <span class="w-1 bg-rose-400 rounded-full waveform-bar" style="animation-delay: 0.4s"></span>
+            <span class="w-1 bg-rose-400 rounded-full waveform-bar" style="animation-delay: 0.2s"></span>
+            <span class="w-1 bg-rose-400 rounded-full waveform-bar" style="animation-delay: 0.5s"></span>
+          </div>
+        </div>
+
+        <!-- 音量スライダー -->
+        <div class="flex items-center gap-2">
+          <span class="text-xs">🔈</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" class="w-full accent-rose-400 h-1.5 bg-rose-200 rounded-lg cursor-pointer">
+          <span class="text-xs">🔊</span>
+        </div>
+      </div>
+
+      <!-- フッター -->
+      <div class="text-center text-[11px] text-stone-400 font-bold">
+        習慣タイマー（habit-timer）集中BGM
+      </div>
+    </main>
+
+    <audio id="audioPlayer" loop></audio>
+
+    <script>
+      const TRACKS = [
+        {
+          id: 'latte',
+          title: '放課後アイスラテ',
+          emoji: '🧊',
+          tag: 'Lo-Fi チルホップ',
+          desc: 'エモい夕暮れのエレピ ＋ レコードのパチパチ音 ＋ グラスの氷のカラン音',
+          color: '#FF7E95',
+          bg: '#FFF0F3',
+          border: '#FECDD3',
+          src: './bgm/afternoon-latte.wav'
+        },
+        {
+          id: 'rain',
+          title: '雨降りの自習室',
+          emoji: '🌧️',
+          tag: '雨音 ＋ ぽろんピアノ',
+          desc: '窓を打つ静かな雨音 ＋ 心が落ち着くアコースティックピアノの残響',
+          color: '#38BDF8',
+          bg: '#F0F9FF',
+          border: '#BAE6FD',
+          src: './bgm/rainy-study.wav'
+        },
+        {
+          id: 'musicbox',
+          title: 'ほしのオルゴール',
+          emoji: '🎠',
+          tag: '星空シンセ ＋ オルゴール',
+          desc: '夜空に広がる温かいアンビエントパッド ＋ 優しいオルゴールの高音',
+          color: '#A855F7',
+          bg: '#FAF5FF',
+          border: '#E9D5FF',
+          src: './bgm/starry-musicbox.wav'
+        },
+        {
+          id: 'walk',
+          title: 'ひだまりの散歩道',
+          emoji: '🍃',
+          tag: '小鳥 ＋ ギターボサノヴァ',
+          desc: '春の木漏れ日と小鳥のさえずり ＋ 軽快なナイロン弦ギター',
+          color: '#10B981',
+          bg: '#F0FDF4',
+          border: '#BBF7D0',
+          src: './bgm/sunny-walk.wav'
+        }
+      ];
+
+      const audio = document.getElementById('audioPlayer');
+      const trackList = document.getElementById('trackList');
+      const nowPlayingCard = document.getElementById('nowPlayingCard');
+      const nowPlayingEmoji = document.getElementById('nowPlayingEmoji');
+      const nowPlayingTitle = document.getElementById('nowPlayingTitle');
+      const nowPlayingSub = document.getElementById('nowPlayingSub');
+      const volumeSlider = document.getElementById('volumeSlider');
+
+      let currentPlayingId = null;
+
+      function renderTracks() {
+        trackList.innerHTML = TRACKS.map(t => {
+          const isPlaying = currentPlayingId === t.id;
+          return `
+            <div 
+              onclick="toggleTrack('${t.id}')"
+              class="cursor-pointer p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between group active:scale-[0.98] ${
+                isPlaying 
+                  ? 'border-rose-400 bg-rose-50/50 shadow-md scale-[1.01]' 
+                  : 'border-stone-200/70 hover:border-rose-300 bg-white/60 hover:bg-white shadow-sm'
+              }"
+            >
+              <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-xl shadow-inner transition-transform group-hover:scale-105" style="background-color: ${t.bg}; border: 1px solid ${t.border};">
+                  ${t.emoji}
+                </div>
+                <div class="flex flex-col text-left">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-black text-stone-800">${t.title}</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background-color: ${t.bg}; color: ${t.color}; border: 1px solid ${t.border};">
+                      ${t.tag}
+                    </span>
+                  </div>
+                  <span class="text-[11px] text-stone-400 font-medium line-clamp-1 mt-0.5">
+                    ${t.desc}
+                  </span>
+                </div>
+              </div>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                isPlaying ? 'bg-rose-500 text-white shadow-sm' : 'bg-stone-100 text-stone-400 group-hover:bg-rose-100 group-hover:text-rose-500'
+              }">
+                ${isPlaying ? '⏸' : '▶'}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function toggleTrack(id) {
+        if (currentPlayingId === id) {
+          audio.pause();
+          currentPlayingId = null;
+          nowPlayingCard.classList.add('hidden');
+        } else {
+          const track = TRACKS.find(t => t.id === id);
+          if (track) {
+            currentPlayingId = id;
+            audio.src = track.src;
+            audio.volume = volumeSlider.value / 100;
+            audio.play().catch(e => console.log('Audio autoplay prevented:', e));
+
+            nowPlayingEmoji.textContent = track.emoji;
+            nowPlayingTitle.textContent = track.title;
+            nowPlayingSub.textContent = track.tag + ' (ループ再生中)';
+            nowPlayingCard.classList.remove('hidden');
+          }
+        }
+        renderTracks();
+      }
+
+      volumeSlider.addEventListener('input', (e) => {
+        audio.volume = e.target.value / 100;
+      });
+
+      renderTracks();
+    </script>
+  </body>
+</html>
