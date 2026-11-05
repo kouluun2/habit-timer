@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: 'Quicksand', 'M PLUS Rounded 1c', ui-rounded, 'Hiragino Maru Gothic ProN', 'Nunito', sans-serif;
+}
+
+button, [role="button"], a, input, select {
+  touch-action: manipulation;
+}
+
+/* GPU Hardware Acceleration for ultra-low mobile CPU overhead & 120fps smoothness */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .safe-area-layout {
+    padding-top: max(1.25rem, calc(env(safe-area-inset-top, 0px) + 0.75rem));
+    padding-bottom: max(1.25rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem));
+    padding-left: max(1rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1rem, env(safe-area-inset-right, 0px));
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "もちまる習慣タイマー",
+  "short_name": "習慣タイマー",
+  "description": "タイマー一体型の習慣化＆キャラ育成アプリ",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
