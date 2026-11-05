@@ -3870,7 +3870,7 @@ const RoamingCompanionPlayground = memo(function RoamingCompanionPlayground({
             transition={{ type: 'spring', stiffness: 380, damping: 24 }}
             onClick={handleBubbleTap}
             style={{ zIndex: 350 }}
-            className="absolute -top-26 sm:-top-30 max-w-[310px] w-[92%] sm:w-auto px-4 py-2 rounded-2xl bg-white/95 dark:bg-zinc-800/95 text-slate-800 dark:text-slate-100 shadow-2xl border border-indigo-200/60 dark:border-zinc-700/60 backdrop-blur-md cursor-pointer transition-colors companion-dialogue-bubble pointer-events-auto touch-manipulation select-none"
+            className="absolute bottom-[108px] sm:bottom-[114px] max-w-[310px] w-[92%] sm:w-auto px-4 py-2 rounded-2xl bg-white/95 dark:bg-zinc-800/95 text-slate-800 dark:text-slate-100 shadow-2xl border border-indigo-200/60 dark:border-zinc-700/60 backdrop-blur-md cursor-pointer transition-colors companion-dialogue-bubble pointer-events-auto touch-manipulation select-none"
           >
             <div className="flex items-center justify-between gap-2 mb-1">
               <div className="flex items-center gap-1.5">
