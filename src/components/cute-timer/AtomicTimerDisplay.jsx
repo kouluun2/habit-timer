@@ -100,7 +100,7 @@ export const AtomicTimerDisplay = memo(function AtomicTimerDisplay({
   const completedSets = getTaskCompletedSets ? getTaskCompletedSets(activeTask) : 0;
 
   return (
-    <div className="relative z-30 w-[min(19rem,74vw,33dvh)] h-[min(19rem,74vw,33dvh)] max-w-[304px] max-h-[304px] flex items-center justify-center select-none touch-manipulation">
+    <div className="relative z-30 w-[min(20.5rem,78vw,35dvh)] h-[min(20.5rem,78vw,35dvh)] max-w-[320px] max-h-[320px] flex items-center justify-center select-none touch-manipulation">
       {/* リキッド演出 */}
       {timerStyle === 'liquid' && (
         <div
@@ -220,7 +220,7 @@ export const AtomicTimerDisplay = memo(function AtomicTimerDisplay({
       <motion.div
         whileTap={{ scale: 0.94 }}
         onClick={toggleTimer}
-        className={`relative z-30 w-[min(11.8rem,46vw,20.5dvh)] h-[min(11.8rem,46vw,20.5dvh)] max-w-[190px] max-h-[190px] rounded-full backdrop-blur-2xl border flex flex-col items-center justify-center cursor-pointer transition-all px-2 select-none touch-manipulation ${currentTheme?.card || ''}`}
+        className={`relative z-30 w-[min(12.5rem,48vw,21.5dvh)] h-[min(12.5rem,48vw,21.5dvh)] max-w-[200px] max-h-[200px] rounded-full backdrop-blur-2xl border flex flex-col items-center justify-center cursor-pointer transition-all px-2 select-none touch-manipulation ${currentTheme?.card || ''}`}
         style={{
           boxShadow: isRunning ? `0 0 48px ${activeCategory?.glow}` : undefined,
         }}

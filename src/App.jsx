@@ -18262,7 +18262,7 @@ export default function App() {
 
           ========================================== */}
 
-      <main className="no-pan relative z-10 flex-1 min-h-0 flex flex-col items-center justify-center w-full max-w-md mt-1 mb-1">
+      <main className="no-pan relative z-10 flex-1 min-h-0 flex flex-col items-center justify-evenly w-full max-w-md py-1 sm:py-2">
 
         {activeTask && (
 
